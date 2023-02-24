@@ -1,0 +1,17 @@
+variables:
+    DOCKER_REGISTRY:        gitlab-service.manageteam.ec2-internal:8443
+    IMAGE_NAME:             $DOCKER_REGISTRY/devops/docker-ami-builder
+    VERSION:                $CI_COMMIT_TAG-$CI_COMMIT_SHA
+
+stages:
+    - deploy
+
+deploy:
+    stage: deploy
+    script:
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $DOCKER_REGISTRY
+        - docker build -t $IMAGE_NAME .
+        - docker tag $IMAGE_NAME $IMAGE_NAME:$VERSION
+        - docker push $IMAGE_NAME:$VERSION
+    only:
+        - tags
